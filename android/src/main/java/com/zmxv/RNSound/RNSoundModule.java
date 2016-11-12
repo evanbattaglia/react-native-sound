@@ -3,7 +3,6 @@ package com.zmxv.RNSound;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
-import android.net.Uri;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
@@ -13,6 +12,8 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableMap;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -58,8 +59,14 @@ public class RNSoundModule extends ReactContextBaseJavaModule {
     }
     File file = new File(fileName);
     if (file.exists()) {
-      Uri uri = Uri.fromFile(file);
-      return MediaPlayer.create(this.context, uri);
+      try {
+        MediaPlayer mp = new MediaPlayer();
+        mp.setDataSource(new FileInputStream(file).getFD());
+        mp.prepare();
+        return mp;
+      } catch (IOException e) {
+        return null; // TODO: return e.getMessage()
+      }
     }
     return null;
   }
